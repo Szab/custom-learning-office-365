@@ -36,6 +36,8 @@ export interface ICustomLearningProps {
   webpartTitle: string;
   customSort: boolean;
   customSortOrder: string[];
+  customLearningViewerUrl: string;
+  modifyUrlOnNavigation: boolean;
   teamsEntityId: string;
   cacheController: ICacheController;
   updateCustomSort: (customSortOrder: string[]) => void;
@@ -90,6 +92,16 @@ export default class CustomLearning extends React.Component<ICustomLearningProps
     this.teamsContext = props.teamsEntityId && props.teamsEntityId.length > 0;
     if (this.teamsContext)
       this.teamsContextUrl = `https://teams.microsoft.com/l/entity/141d4ab7-b6ca-4bf4-ac59-25b7bf93642d/${props.teamsEntityId}?context={"subEntityId":`;
+<<<<<<< HEAD
+=======
+
+    if (this.props.modifyUrlOnNavigation) {
+      window.addEventListener('popstate', (e) => {
+        this.setState(e.state);
+      });  
+    }
+
+>>>>>>> 087230d (- Added the ability to use the Back button in the browser)
     this.init();
   }
 
@@ -257,7 +269,7 @@ export default class CustomLearning extends React.Component<ICustomLearningProps
       let assets: IAsset[] = null;
       let currentAsset: IAsset = null;
       let filterValues: IFilterValue[] = cloneDeep(this.state.filterValues);
-      let url: string = `${params.baseViewerUrl}?cdn=${this.props.cacheController.CDN}`;
+      let url: string = `${ this.props.customLearningViewerUrl ?? params.baseViewerUrl }?cdn=${this.props.cacheController.CDN}`;
       let teamsContext: string[] = [];
       if (this.teamsContext) {
         //url is for teams context
@@ -393,7 +405,7 @@ export default class CustomLearning extends React.Component<ICustomLearningProps
     try {
       let currentAsset = find(this.state.assets, { Id: assetId });
       if (!isEqual(currentAsset, this.state.currentAsset)) {
-        let url: string = `${params.baseViewerUrl}?cdn=${this.props.cacheController.CDN}`;
+        let url: string = `${ this.props.customLearningViewerUrl ?? params.baseViewerUrl }?cdn=${this.props.cacheController.CDN}`;
         if (this.teamsContext) {
           let teamsContext: string[] = ["", this.props.cacheController.CDN, "", "", (this.state.detail != null) ? (this.state.detail as IPlaylist).Id : "", currentAsset.Id];
           let subEntityId = teamsContext.join(":");
@@ -681,7 +693,19 @@ export default class CustomLearning extends React.Component<ICustomLearningProps
   public render(): React.ReactElement<ICustomLearningProps> {
     console.debug('Windows', window);
     if (!this.state.template) return null;
+    
     try {
+      if (this.props.modifyUrlOnNavigation) {
+        // Don't remember states where a playlist is selected, but no asset is yet selected
+        if (this.state.url !== location.href && (
+              this.state.template !== Templates.Playlist ||
+              this.state.template === Templates.Playlist && this.state.currentAsset
+            )
+          ) {
+          window.history.pushState(this.state, null, this.state.url);
+        }
+      }
+
       return (
         <>
           {this.state.renderPanel &&

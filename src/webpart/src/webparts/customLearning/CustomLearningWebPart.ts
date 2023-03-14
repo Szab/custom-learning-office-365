@@ -54,6 +54,8 @@ export interface ICustomLearningWebPartProps {
   defaultCDN: string;
   customSort: boolean;
   customSortOrder: string[];
+  modifyUrlOnNavigation: boolean;
+  customLearningViewerUrl: string;
 }
 
 import {
@@ -86,13 +88,13 @@ export default class CustomLearningWebPart extends BaseClientSideWebPart<ICustom
   private _ppAssets: IPropertyPaneDropdownOption[];
 
   //Get the values from the query string if necessary
-  private _queryParms: UrlQueryParameterCollection = new UrlQueryParameterCollection(window.location.href);
-  private _urlWebpartMode: string = this._queryParms.getValue("webpartmode");
-  private _urlCDN: string = this._queryParms.getValue("cdn");
-  private _urlCategory: string = this._queryParms.getValue("category");
-  private _urlSubCategory: string = this._queryParms.getValue("subcategory");
-  private _urlPlaylist: string = this._queryParms.getValue("playlist");
-  private _urlAsset: string = this._queryParms.getValue("asset");
+    private _queryParms: UrlQueryParameterCollection = new UrlQueryParameterCollection(window.location.href);
+    private _urlWebpartMode: string = this._queryParms.getValue("webpartmode");
+    private _urlCDN: string = this._queryParms.getValue("cdn");
+    private _urlCategory: string = this._queryParms.getValue("category");
+    private _urlSubCategory: string = this._queryParms.getValue("subcategory");
+    private _urlPlaylist: string = this._queryParms.getValue("playlist");
+    private _urlAsset: string = this._queryParms.getValue("asset");
 
   // Theming support for Section
   private _themeProvider: ThemeProvider;
@@ -335,6 +337,7 @@ export default class CustomLearningWebPart extends BaseClientSideWebPart<ICustom
     else {
       //Render Webpart if no error condition
       if (this._validSetup && this._validConfig) {
+        
         //Render web part
         const props: ICustomLearningProps = {
           editMode: (this.displayMode === DisplayMode.Edit),
@@ -347,7 +350,14 @@ export default class CustomLearningWebPart extends BaseClientSideWebPart<ICustom
           customSortOrder: this.properties.customSortOrder,
           teamsEntityId: this.context.sdks.microsoftTeams?.context?.entityId,
           cacheController: this._cacheController,
+<<<<<<< HEAD
           updateCustomSort: this.updateCustomSort
+=======
+          customLearningViewerUrl: this.properties.customLearningViewerUrl,
+          modifyUrlOnNavigation: this.properties.modifyUrlOnNavigation,
+          updateCustomSort: this.updateCustomSort,
+          getCSSVariablesOnElement: this.getCSSVariablesOnElement,
+>>>>>>> 087230d (- Added the ability to use the Back button in the browser)
         };
 
         element = React.createElement(React.Suspense, { fallback: shimmer },
@@ -599,6 +609,12 @@ export default class CustomLearningWebPart extends BaseClientSideWebPart<ICustom
                     label: strings.WebpartModeLabel,
                     options: this._ppWebpartMode,
                     selectedKey: this.properties.webpartMode
+                  }),
+                  PropertyPaneToggle('modifyUrlOnNavigation', {
+                    label: strings.ModifyUrlOnNavigation,
+                  }),
+                  PropertyPaneTextField('customLearningViewerUrl', {
+                    label: strings.CustomViewerUrl
                   })
                 ]
               }
